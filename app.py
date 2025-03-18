@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import threading
 import os
+import json
 import time
 import re
 import gspread
@@ -76,13 +77,14 @@ def run_selenium_script():
 
         driver.quit()
 
-        # ✅ GOOGLE SHEETS INTEGRATION
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, "front-door-pro-service-pro-4fd9da0d44ef.json")
+        # ✅ Load credentials from environment variable
+        json_creds = os.getenv("GOOGLE_SERVICE_ACCOUNT")
 
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=scope)
+    if json_creds:
+        creds = Credentials.from_service_account_info(json.loads(json_creds))
         client = gspread.authorize(creds)
+    else:
+        raise ValueError("❌ GOOGLE_SERVICE_ACCOUNT environment variable not set!")
 
         SHEET_NAME = "AcceptedJobsFDPtoST"
         SHEET_TAB = "ASSIGNPROJOBS"
