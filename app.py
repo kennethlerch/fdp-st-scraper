@@ -20,7 +20,6 @@ app = Flask(__name__)
 # Global variable to track script status
 script_running = False
 
-
 def run_selenium_script():
     """Function that runs Selenium to scrape job details"""
     global script_running
@@ -86,7 +85,7 @@ def run_selenium_script():
                 client = gspread.authorize(creds)
             else:
                 raise ValueError("❌ GOOGLE_SERVICE_ACCOUNT environment variable not set!")
-       
+    
             # ✅ Google Sheets Setup (This should be outside of the if-else)
             SHEET_NAME = "AcceptedJobsFDPtoST"
             SHEET_TAB = "ASSIGNPROJOBS"
@@ -100,13 +99,13 @@ def run_selenium_script():
         except Exception as e:
             print(f"⚠️ Error: {e}")
 
-        finally:
-            script_running = False
-
+    finally:
+        script_running = False
 
 @app.route('/run-script', methods=['GET'])
 def start_script():
     """API Endpoint to start the Selenium script"""
+    global script_running
     if script_running:
         return jsonify({"message": "Script is already running!"}), 400
 
@@ -115,12 +114,10 @@ def start_script():
 
     return jsonify({"message": "Script started successfully!"})
 
-
 @app.route('/status', methods=['GET'])
 def check_status():
     """API Endpoint to check if the script is running"""
     return jsonify({"script_running": script_running})
-
 
 if __name__ == '__main__':
     app.run(debug=True)
