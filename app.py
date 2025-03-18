@@ -77,7 +77,7 @@ def run_selenium_script():
 
         driver.quit()
 
-        # ✅ Load credentials from environment variable
+    try: # ✅ Load credentials from environment variable
         json_creds = os.getenv("GOOGLE_SERVICE_ACCOUNT")
 
     if json_creds:
@@ -85,15 +85,16 @@ def run_selenium_script():
         client = gspread.authorize(creds)
     else:
         raise ValueError("❌ GOOGLE_SERVICE_ACCOUNT environment variable not set!")
+       
+    # ✅ Google Sheets Setup (This should be outside of the if-else)
+    SHEET_NAME = "AcceptedJobsFDPtoST"
+    SHEET_TAB = "ASSIGNPROJOBS"
 
-        SHEET_NAME = "AcceptedJobsFDPtoST"
-        SHEET_TAB = "ASSIGNPROJOBS"
+    sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
+    new_jobs_df = pd.DataFrame(jobs_data)
+    sheet.append_rows(new_jobs_df.values.tolist())
 
-        sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
-        new_jobs_df = pd.DataFrame(jobs_data)
-        sheet.append_rows(new_jobs_df.values.tolist())
-
-        print("✅ Jobs added to Google Sheets!")
+    print("✅ Jobs added to Google Sheets!")
 
     except Exception as e:
         print(f"⚠️ Error: {e}")
