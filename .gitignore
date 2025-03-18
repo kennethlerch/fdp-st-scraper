@@ -1,0 +1,6 @@
+# Ignore Google Cloud service account credentials
+front-door-pro-service-pro-4fd9da0d44ef.json
+
+# Ignore large files
+dist/application.exe
+build/application/application.pkg
