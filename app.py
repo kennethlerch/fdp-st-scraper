@@ -114,10 +114,18 @@ def start_script():
 
     return jsonify({"message": "Script started successfully!"})
 
+@app.route('/', methods=['GET'])
+def home():
+    """API Endpoint for the root URL"""
+    return jsonify({"message": "Service is running!"})
+
 @app.route('/status', methods=['GET'])
 def check_status():
     """API Endpoint to check if the script is running"""
-    return jsonify({"script_running": script_running})
+    return jsonify({
+        "script_running": script_running,
+        "status": "Running" if script_running else "Idle"
+    })
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
