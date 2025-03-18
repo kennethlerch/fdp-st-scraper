@@ -76,31 +76,32 @@ def run_selenium_script():
             jobs_data.append({"Job": job_text})
 
         driver.quit()
+    
+        try:
+            # ✅ Load credentials from environment variable
+            json_creds = os.getenv("GOOGLE_SERVICE_ACCOUNT")
 
-    try: # ✅ Load credentials from environment variable
-        json_creds = os.getenv("GOOGLE_SERVICE_ACCOUNT")
-
-    if json_creds:
-        creds = Credentials.from_service_account_info(json.loads(json_creds))
-        client = gspread.authorize(creds)
-    else:
-        raise ValueError("❌ GOOGLE_SERVICE_ACCOUNT environment variable not set!")
+            if json_creds:
+                creds = Credentials.from_service_account_info(json.loads(json_creds))
+                client = gspread.authorize(creds)
+            else:
+                raise ValueError("❌ GOOGLE_SERVICE_ACCOUNT environment variable not set!")
        
-    # ✅ Google Sheets Setup (This should be outside of the if-else)
-    SHEET_NAME = "AcceptedJobsFDPtoST"
-    SHEET_TAB = "ASSIGNPROJOBS"
+            # ✅ Google Sheets Setup (This should be outside of the if-else)
+            SHEET_NAME = "AcceptedJobsFDPtoST"
+            SHEET_TAB = "ASSIGNPROJOBS"
 
-    sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
-    new_jobs_df = pd.DataFrame(jobs_data)
-    sheet.append_rows(new_jobs_df.values.tolist())
+            sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
+            new_jobs_df = pd.DataFrame(jobs_data)
+            sheet.append_rows(new_jobs_df.values.tolist())
 
-    print("✅ Jobs added to Google Sheets!")
+            print("✅ Jobs added to Google Sheets!")
 
-    except Exception as e:
-        print(f"⚠️ Error: {e}")
+        except Exception as e:
+            print(f"⚠️ Error: {e}")
 
-    finally:
-        script_running = False
+        finally:
+            script_running = False
 
 
 @app.route('/run-script', methods=['GET'])
