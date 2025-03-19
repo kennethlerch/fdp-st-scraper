@@ -206,6 +206,9 @@ def start_script():
     global script_running
     if script_running:
         return jsonify({"message": "Script is already running!"}), 400
+
+    print("🟢 /run-script called! Starting Selenium thread...")  # Debug log
+    
     try:
         script_running = True
         thread = threading.Thread(target=run_selenium_script)
@@ -213,6 +216,7 @@ def start_script():
         return jsonify({"message": "Script started successfully!"})
     except Exception as e:
         script_running = False
+        print(f"❌ Failed to start script: {e}")  # Debug log
         return jsonify({"error": f"Failed to start script: {str(e)}"}), 500
 
 @app.route('/status', methods=['GET'])
