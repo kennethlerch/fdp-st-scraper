@@ -27,37 +27,28 @@ def run_selenium_script():
     global script_running
     script_running = True
 
-    try:
-        # ✅ Install Chrome at runtime
-        chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
+try:
+    chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
 
-        options = Options()
-        options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
-        options.add_argument("--headless") 
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option("useAutomationExtension", False)
+    options = Options()
+    options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("useAutomationExtension", False)
 
-# ✅ Auto-install and use the correct chromedriver version
-chromedriver_autoinstaller.install()
+    # ✅ Auto-install and use the correct chromedriver version
+    chromedriver_autoinstaller.install()
 
-# ✅ Initialize WebDriver with configured options
-driver = webdriver.Chrome(options=options)
+    # ✅ Initialize WebDriver with configured options
+    driver = webdriver.Chrome(options=options)
 
-        # ✅ Setup Selenium with Chrome
-        options = Options()
-        options.add_argument("--headless")  # Run in headless mode for the server
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option("useAutomationExtension", False)
+except Exception as e:
+    print(f"❌ Chrome setup failed: {e}")
+    driver = None  # Prevent errors if Chrome fails
 
-        # ✅ Auto-install and use the correct chromedriver version
-        chromedriver_autoinstaller.install()
-        driver = webdriver.Chrome(options=options)
 
         # ✅ Open login page
         driver.get("https://pro.proconnect.com/login")
