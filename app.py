@@ -58,11 +58,6 @@ def run_selenium_script():
         driver.get("https://pro.proconnect.com/login")
         time.sleep(10)
 
-    except Exception as e:
-        print(f"❌ Chrome setup failed: {e}")
-        driver = None  # Prevent errors if Chrome fails
-        
-    if driver:
         try:
             # ✅ Click "Sign In" button
             sign_in_button = WebDriverWait(driver, 10).until(
@@ -88,6 +83,15 @@ def run_selenium_script():
         except Exception:
             print("❌ Failed to enter credentials!")
 
+     except Exception as e:
+        print(f"❌ Chrome setup failed: {e}")
+        driver = None  # Prevent errors if Chrome fails
+         
+    finally:
+        script_running = False
+        if driver:
+            driver.quit()  # ✅ Ensure the browser is closed
+            
         # ✅ Extract job data
         jobs_data = []
         base_url = "https://pro.proconnect.com/jobs"
