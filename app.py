@@ -52,8 +52,8 @@ def run_selenium_script():
         
 
         print("🔄 Setting up WebDriver options...")  # Debug log
-        chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
-        chromedriver_path = "/tmp/chromedriver"  # ✅ Use the extracted path in /tmp/
+        chrome_path = "/opt/google/chrome/google-chrome"  # Default path in Render
+        chromedriver_path = "/tmp/chromedriver"  # Extracted Chromedriver
 
         options = Options()
         options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
