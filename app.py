@@ -28,6 +28,12 @@ def run_selenium_script():
     script_running = True
 
     try:
+        # ✅ Install Chrome manually before running Selenium
+        subprocess.run("apt update && apt install -y wget curl unzip", shell=True, check=True)
+        subprocess.run("wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", shell=True, check=True)
+        subprocess.run("apt install -y ./google-chrome-stable_current_amd64.deb", shell=True, check=True)
+
+        # ✅ Define the Chrome binary path explicitly
         chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
 
         options = Options()
@@ -39,15 +45,17 @@ def run_selenium_script():
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
 
-        # ✅ Auto-install and use the correct chromedriver version
-        chromedriver_autoinstaller.install()
-
         # ✅ Initialize WebDriver with configured options
+        chromedriver_autoinstaller.install()
         driver = webdriver.Chrome(options=options)
 
         # ✅ Open login page
         driver.get("https://pro.proconnect.com/login")
         time.sleep(10)
+
+    except Exception as e:
+        print(f"❌ Chrome setup failed: {e}")
+        driver = None  # Prevent errors if Chrome fails
     
         # ✅ Click "Sign In" button
         try:
