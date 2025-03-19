@@ -83,15 +83,6 @@ def run_selenium_script():
         except Exception:
             print("❌ Failed to enter credentials!")
 
-     except Exception as e:
-        print(f"❌ Chrome setup failed: {e}")
-        driver = None  # Prevent errors if Chrome fails
-         
-    finally:
-        script_running = False
-        if driver:
-            driver.quit()  # ✅ Ensure the browser is closed
-            
         # ✅ Extract job data
         jobs_data = []
         base_url = "https://pro.proconnect.com/jobs"
@@ -165,8 +156,14 @@ def run_selenium_script():
         else:
             print("❌ GOOGLE_SERVICE_ACCOUNT environment variable not set!")
 
+    except Exception as e:
+        print(f"❌ Chrome setup failed: {e}")
+        driver = None  # Prevent errors if Chrome fails
+
     finally:
         script_running = False
+        if driver:
+            driver.quit()  # ✅ Now quitting at the correct point
 
 @app.route('/run-script', methods=['GET'])
 def start_script():
@@ -189,3 +186,4 @@ def check_status():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
