@@ -27,32 +27,28 @@ def run_selenium_script():
     global script_running
     script_running = True
 
-try:
-    chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
+    try:
+        chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
 
-    options = Options()
-    options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option("useAutomationExtension", False)
+        options = Options()
+        options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("useAutomationExtension", False)
 
-    # ✅ Auto-install and use the correct chromedriver version
-    chromedriver_autoinstaller.install()
+        # ✅ Auto-install and use the correct chromedriver version
+        chromedriver_autoinstaller.install()
 
-    # ✅ Initialize WebDriver with configured options
-    driver = webdriver.Chrome(options=options)
+        # ✅ Initialize WebDriver with configured options
+        driver = webdriver.Chrome(options=options)
 
-    # ✅ Open login page
+        # ✅ Open login page
         driver.get("https://pro.proconnect.com/login")
         time.sleep(10)
-
-except Exception as e:
-    print(f"❌ Chrome setup failed: {e}")
-    driver = None  # Prevent errors if Chrome fails
-
+    
         # ✅ Click "Sign In" button
         try:
             sign_in_button = WebDriverWait(driver, 10).until(
@@ -156,30 +152,22 @@ except Exception as e:
 
 @app.route('/run-script', methods=['GET'])
 def start_script():
-    """API Endpoint to start the Selenium script"""
     global script_running
-
     if script_running:
-        return jsonify({"message": "Script is already running!"}), 400  # Return 400 if already running
-
+        return jsonify({"message": "Script is already running!"}), 400
     try:
-        script_running = True  # Set flag before starting the thread
+        script_running = True
         thread = threading.Thread(target=run_selenium_script)
         thread.start()
         return jsonify({"message": "Script started successfully!"})
-    
     except Exception as e:
-        script_running = False  # Reset flag in case of failure
+        script_running = False
         return jsonify({"error": f"Failed to start script: {str(e)}"}), 500
 
 @app.route('/status', methods=['GET'])
 def check_status():
-    """API Endpoint to check if the script is running"""
-    return jsonify({
-        "script_running": script_running,
-        "status": "Running" if script_running else "Idle"
-    })
+    return jsonify({"script_running": script_running, "status": "Running" if script_running else "Idle"})
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))  # ✅ Ensure it's set to 10000
+    port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port, debug=True)
