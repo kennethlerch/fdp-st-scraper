@@ -45,14 +45,13 @@ try:
     # ✅ Initialize WebDriver with configured options
     driver = webdriver.Chrome(options=options)
 
+    # ✅ Open login page
+        driver.get("https://pro.proconnect.com/login")
+        time.sleep(10)
+
 except Exception as e:
     print(f"❌ Chrome setup failed: {e}")
     driver = None  # Prevent errors if Chrome fails
-
-
-        # ✅ Open login page
-        driver.get("https://pro.proconnect.com/login")
-        time.sleep(10)
 
         # ✅ Click "Sign In" button
         try:
