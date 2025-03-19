@@ -145,13 +145,19 @@ def run_selenium_script():
 def start_script():
     """API Endpoint to start the Selenium script"""
     global script_running
+
     if script_running:
-        return jsonify({"message": "Script is already running!"}), 400
+        return jsonify({"message": "Script is already running!"}), 400  # Return 400 if already running
 
-    thread = threading.Thread(target=run_selenium_script)
-    thread.start()
-
-    return jsonify({"message": "Script started successfully!"})
+    try:
+        script_running = True  # Set flag before starting the thread
+        thread = threading.Thread(target=run_selenium_script)
+        thread.start()
+        return jsonify({"message": "Script started successfully!"})
+    
+    except Exception as e:
+        script_running = False  # Reset flag in case of failure
+        return jsonify({"error": f"Failed to start script: {str(e)}"}), 500
 
 @app.route('/status', methods=['GET'])
 def check_status():
@@ -162,5 +168,5 @@ def check_status():
     })
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 10000))  # ✅ Ensure it's set to 10000
     app.run(host="0.0.0.0", port=port, debug=True)
