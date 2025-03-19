@@ -36,11 +36,12 @@ def run_selenium_script():
         os.system("dpkg -i /tmp/chrome.deb || apt-get -f install -y")
         
         os.system(f"wget {chromedriver_url} -O /tmp/chromedriver.zip")
-        os.system("unzip /tmp/chromedriver.zip -d /usr/local/bin/")
-        os.system("chmod +x /usr/local/bin/chromedriver")
+        os.system("unzip /tmp/chromedriver.zip -d /tmp/")  # ✅ Extract to /tmp/
+        os.system("chmod +x /tmp/chromedriver")  # ✅ Ensure it's executable
 
         # ✅ Define the Chrome binary path explicitly
         chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
+        chromedriver_path = "/tmp/chromedriver"  # ✅ Use the extracted path in /tmp/
 
         options = Options()
         options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
@@ -51,8 +52,9 @@ def run_selenium_script():
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
 
-        # ✅ Use installed chromedriver
-        driver = webdriver.Chrome(options=options)
+        # ✅ Use installed chromedriver from /tmp/
+        service = Service(chromedriver_path)
+        driver = webdriver.Chrome(service=service, options=options)
 
         # ✅ Open login page
         driver.get("https://pro.proconnect.com/login")
