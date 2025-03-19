@@ -29,18 +29,29 @@ def run_selenium_script():
     print("🚀 Selenium script started!")  # Debug log
 
     try:
+        print("🔄 Installing Chrome and Chromedriver...")  # Debug log
+        
         # ✅ Install Chrome manually before running Selenium
         chrome_url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
         chromedriver_url = "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
 
         os.system(f"wget {chrome_url} -O /tmp/chrome.deb")
+        print("📥 Chrome downloaded!")  # Debug log
+        
         os.system("dpkg -i /tmp/chrome.deb || apt-get -f install -y")
+        print("✅ Chrome installed!")  # Debug log
         
         os.system(f"wget {chromedriver_url} -O /tmp/chromedriver.zip")
+        print("📥 Chromedriver downloaded!")  # Debug log
+        
         os.system("unzip /tmp/chromedriver.zip -d /tmp/")  # ✅ Extract to /tmp/
+        print("✅ Chromedriver extracted!")  # Debug log
+        
         os.system("chmod +x /tmp/chromedriver")  # ✅ Ensure it's executable
+        print("🔧 Chromedriver permissions set!")  # Debug log
+        
 
-        # ✅ Define the Chrome binary path explicitly
+        print("🔄 Setting up WebDriver options...")  # Debug log
         chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
         chromedriver_path = "/tmp/chromedriver"  # ✅ Use the extracted path in /tmp/
 
@@ -53,26 +64,34 @@ def run_selenium_script():
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
 
+        print("✅ WebDriver options configured!")  # Debug log
+
         # ✅ Use installed chromedriver from /tmp/
         service = Service(chromedriver_path)
         driver = webdriver.Chrome(service=service, options=options)
 
         # ✅ Open login page
+        print("📌 Navigating to login page...")  # Debug log
         driver.get("https://pro.proconnect.com/login")
+        print("🟢 Login page opened")  # Debug log
         time.sleep(10)
 
         try:
             # ✅ Click "Sign In" button
+            print("🔄 Looking for 'Sign In' button...")  # Debug log
             sign_in_button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, "button-interactive"))
             )
             sign_in_button.click()
+            print("✅ Clicked 'Sign In' button!")  # Debug log
+            
             time.sleep(3)
         except Exception:
             print("❌ Failed to click 'Sign In' button!")
 
         try:
             # ✅ Enter login credentials
+            print("🔄 Entering login credentials...")  # Debug log
             username_field = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "loginId"))
             )
@@ -82,6 +101,7 @@ def run_selenium_script():
             username_field.send_keys("office@gardnerplumbingco.com")
             password_field.send_keys("Job13:14!")
             login_button.click()
+            print("✅ Credentials entered, logging in...")  # Debug log
             time.sleep(10)
         except Exception:
             print("❌ Failed to enter credentials!")
@@ -91,20 +111,25 @@ def run_selenium_script():
         base_url = "https://pro.proconnect.com/jobs"
         driver.get(base_url)
         time.sleep(5)
+        print("✅ Jobs page loaded!")  # Debug log
 
+        print("🔄 Fetching job list elements...")  # Debug log
         def get_job_list():
             """ Re-fetch job elements to avoid stale element errors """
             return driver.find_elements(By.XPATH, "//div[contains(@class, '_statusPill_dzcst_42') and contains(text(), 'Assign Pro')]")
 
         job_elements = get_job_list()
+        print(f"✅ Found {len(job_elements)} job elements!")  # Debug log
 
         for index in range(len(job_elements)):
             try:
+                print(f"🔄 Processing job {index+1}/{len(job_elements)}...")  # Debug log
                 job_elements = get_job_list()
                 job_status = job_elements[index]
                 job_entry = job_status.find_element(By.XPATH, "./ancestor::div[contains(@data-testid, 'appointment-list-item')]")
                 job_entry.click()
                 time.sleep(5)
+                print(f"✅ Clicked job {index+1}")  # Debug log
 
                 def extract_text_with_js(xpath):
                     """ Extracts text using JavaScript execution """
@@ -113,11 +138,14 @@ def run_selenium_script():
                             EC.presence_of_element_located((By.XPATH, xpath))
                         )
                         text = driver.execute_script("return arguments[0].innerText;", element).strip()
+                        print(f"🔹 Extracted text: {text} from {xpath}")  # Debug log
                         return text if text else "N/A"
                     except Exception:
+                        print(f"⚠️ Failed to extract text from {xpath}")  # Debug log
                         return "N/A"
 
                 # ✅ Extract Data
+                print("🔄 Extracting job details...")  # Debug log
                 job_service = extract_text_with_js("//div[@id='jobPage.jobDetails']//div[h6[contains(text(), 'Service:')]]").replace("Service:", "").strip()
                 job_work_order = extract_text_with_js("//div[@id='jobPage.jobDetails']//div[h6[contains(text(), 'Work Order:')]]").replace("Work Order:", "").strip()
                 customer_name = extract_text_with_js("//div[@id='jobPage.customerInfo']//div[h6[contains(text(), 'Name:')]]").replace("Name:", "").strip()
@@ -130,6 +158,9 @@ def run_selenium_script():
                 street_address = extract_text_with_js("//div[@data-testid='address.street']")
                 city_state_zip = extract_text_with_js("//div[contains(@class, '_cityStateZip')]")
 
+                print("✅ Extracted job details!")  # Debug log
+
+                print(f"📌 Saving job {index+1} data...")  # Debug log
                 jobs_data.append({
                     "Service": job_service,
                     "Work Order": job_work_order,
@@ -141,9 +172,11 @@ def run_selenium_script():
                     "Appointment Time": appointment_time,
                     "Job Description": job_description
                 })
+                print(f"✅ Job {index+1} data saved!")  # Debug log
 
                 driver.get(base_url)
                 time.sleep(5)
+                print("🔄 Returning to job list...")  # Debug log
 
             except Exception as e:
                 print(f"⚠️ Error processing job {index+1}: {e}")
