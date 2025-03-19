@@ -14,6 +14,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from google.oauth2.service_account import Credentials
+import subprocess
+import chromedriver_autoinstaller
 
 app = Flask(__name__)
 
@@ -26,15 +28,21 @@ def run_selenium_script():
     script_running = True
 
     try:
-        # ✅ SETUP SELENIUM
+        # ✅ Install Chrome at runtime
+        subprocess.run("apt update && apt install -y chromium-browser", shell=True, check=True)
+
+        # ✅ Setup Selenium with Chrome
         options = Options()
-        options.add_argument("--headless")  # ✅ Run in headless mode for the server
+        options.add_argument("--headless")  # Run in headless mode for the server
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
 
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
+        # ✅ Auto-install and use the correct chromedriver version
+        chromedriver_autoinstaller.install()
+        driver = webdriver.Chrome(options=options)
 
         # ✅ Open login page
         driver.get("https://pro.proconnect.com/login")
