@@ -26,6 +26,7 @@ def run_selenium_script():
     """Function that runs Selenium to scrape job details"""
     global script_running
     script_running = True
+    print("🚀 Selenium script started!")  # Debug log
 
     try:
         # ✅ Install Chrome manually before running Selenium
