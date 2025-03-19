@@ -23,37 +23,19 @@ app = Flask(__name__)
 script_running = False
 
 def run_selenium_script():
+    import chromedriver_autoinstaller
+    print("🔍 Installing Chromedriver automatically...")
+    chromedriver_autoinstaller.install()
+    print("✅ Chromedriver auto-installed!")
     """Function that runs Selenium to scrape job details"""
     global script_running
     script_running = True
     print("🚀 Selenium script started!")  # Debug log
 
     try:
-        print("🔄 Installing Chrome and Chromedriver...")  # Debug log
-        
-        # ✅ Install Chrome manually before running Selenium
-        chrome_url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-        chromedriver_url = "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
-
-        os.system(f"wget {chrome_url} -O /tmp/chrome.deb")
-        print("📥 Chrome downloaded!")  # Debug log
-        
-        os.system("dpkg -i /tmp/chrome.deb || apt-get -f install -y")
-        print("✅ Chrome installed!")  # Debug log
-        
-        os.system(f"wget {chromedriver_url} -O /tmp/chromedriver.zip")
-        print("📥 Chromedriver downloaded!")  # Debug log
-        
-        os.system("unzip /tmp/chromedriver.zip -d /tmp/")  # ✅ Extract to /tmp/
-        print("✅ Chromedriver extracted!")  # Debug log
-        
-        os.system("chmod +x /tmp/chromedriver")  # ✅ Ensure it's executable
-        print("🔧 Chromedriver permissions set!")  # Debug log
-        
-
         print("🔄 Setting up WebDriver options...")  # Debug log
         chrome_path = "/opt/google/chrome/google-chrome"  # Default path in Render
-        chromedriver_path = "/tmp/chromedriver"  # Extracted Chromedriver
+        chromedriver_path = "/usr/bin/chromedriver"  # ✅ Correct path for Render
 
         options = Options()
         options.binary_location = chrome_path  # ✅ Use the pre-installed Chrome
