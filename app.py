@@ -29,9 +29,15 @@ def run_selenium_script():
 
     try:
         # ✅ Install Chrome manually before running Selenium
-        subprocess.run("apt update && apt install -y wget curl unzip", shell=True, check=True)
-        subprocess.run("wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", shell=True, check=True)
-        subprocess.run("apt install -y ./google-chrome-stable_current_amd64.deb", shell=True, check=True)
+        chrome_url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+        chromedriver_url = "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
+
+        os.system(f"wget {chrome_url} -O /tmp/chrome.deb")
+        os.system("dpkg -i /tmp/chrome.deb || apt-get -f install -y")
+        
+        os.system(f"wget {chromedriver_url} -O /tmp/chromedriver.zip")
+        os.system("unzip /tmp/chromedriver.zip -d /usr/local/bin/")
+        os.system("chmod +x /usr/local/bin/chromedriver")
 
         # ✅ Define the Chrome binary path explicitly
         chrome_path = "/usr/bin/google-chrome"  # Path to pre-installed Chrome on Render
@@ -45,8 +51,7 @@ def run_selenium_script():
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
 
-        # ✅ Initialize WebDriver with configured options
-        chromedriver_autoinstaller.install()
+        # ✅ Use installed chromedriver
         driver = webdriver.Chrome(options=options)
 
         # ✅ Open login page
@@ -56,9 +61,10 @@ def run_selenium_script():
     except Exception as e:
         print(f"❌ Chrome setup failed: {e}")
         driver = None  # Prevent errors if Chrome fails
-    
-        # ✅ Click "Sign In" button
+        
+    if driver:
         try:
+            # ✅ Click "Sign In" button
             sign_in_button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, "button-interactive"))
             )
@@ -67,8 +73,8 @@ def run_selenium_script():
         except Exception:
             print("❌ Failed to click 'Sign In' button!")
 
-        # ✅ Enter login credentials
         try:
+            # ✅ Enter login credentials
             username_field = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "loginId"))
             )
